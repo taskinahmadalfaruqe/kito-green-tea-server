@@ -5,7 +5,6 @@ require('dotenv').config();
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
-// var jwt = require('jsonwebtoken');
 
 
 // middleware 
@@ -27,6 +26,7 @@ const client = new MongoClient(uri, {
   }
 });
 
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -45,9 +45,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('e-shop-bd server is running.....')
+  res.send('e-shop-bd server is running.....')
 })
 
 app.listen(port, () => {
-    console.log(`e-shop-bd Server is running on port : ${port}`)
+  console.log(`e-shop-bd Server is running on port : ${port}`)
 })
