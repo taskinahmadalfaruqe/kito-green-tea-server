@@ -49,7 +49,7 @@ async function run() {
     const productsCollection = client.db("eShopBD").collection("products");
     const pendingOrderCollection = client.db("eShopBD").collection("pendingOrder");
     const deliverOrder = client.db("eShopBD").collection('deliver');
-    const contactUS = client.db("eShopBD").collection('ContactUS');
+    const pendingContactData = client.db("eShopBD").collection('pendingContact');
     const solveContactUS = client.db("eShopBD").collection('solveContact');
 
     //GET PRODUCTS
@@ -63,6 +63,31 @@ async function run() {
       const result = await productsCollection.find().toArray();
       res.send(result);
     })
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const result = await productsCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    })
+
+    // update a  Product data 
+    app.patch('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const data = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          productCategory: data.productCategory,
+          productName: data.productName,
+          regularPrice: data.regularPrice,
+          productDetails: data.productDetails,
+          discountPrice: data.discountPrice,
+          image: data.image,
+        },
+      };
+      const result = await productsCollection.updateOne(filter, updateDoc, options);
+      res.send(result)
+    })
 
     //PLACE ORDER
     app.post('/pendingOrderData', async (req, res) => {
@@ -71,6 +96,24 @@ async function run() {
       const orderData = await pendingOrderCollection.insertOne({ ...pendingOrderDataPost, trackOrder });
       res.send({ orderData, orderID: `${trackOrder}` });
     });
+
+    app.patch('/pendingOrderData/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const data = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: "done",
+        },
+      };
+      const result = await pendingOrderCollection.updateOne(filter, updateDoc, options);
+      res.send(result)
+    })
+
+
+
+
     // GET ALL PENDING ORDERS
     app.get('/pendingOrderData', async (req, res) => {
       const data = await pendingOrderCollection.find().toArray();
@@ -78,6 +121,17 @@ async function run() {
     });
 
 
+    // CONTACT DATA
+    app.post('/pendingContact', async (req, res) => {
+      const data = req.body;
+      const result = await pendingContactData.insertOne(data);
+      res.send(result);
+    })
+
+    app.get('/pendingContact', async (req, res) => {
+      const findData = await pendingContactData.find().toArray();
+      res.send(findData);
+    })
   } finally {
   }
 }
