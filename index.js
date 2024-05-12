@@ -68,7 +68,6 @@ async function run() {
       const result = await productsCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
     })
-
     // update a  Product data 
     app.patch('/products/:id', async (req, res) => {
       const id = req.params.id;
@@ -111,15 +110,11 @@ async function run() {
       res.send(result)
     })
 
-
-
-
     // GET ALL PENDING ORDERS
     app.get('/pendingOrderData', async (req, res) => {
       const data = await pendingOrderCollection.find().toArray();
       res.send(data);
     });
-
 
     // CONTACT DATA
     app.post('/pendingContact', async (req, res) => {
@@ -127,10 +122,26 @@ async function run() {
       const result = await pendingContactData.insertOne(data);
       res.send(result);
     })
-
     app.get('/pendingContact', async (req, res) => {
       const findData = await pendingContactData.find().toArray();
       res.send(findData);
+    })
+    app.get('/pendingContact/:id', async (req, res) => {
+      const id = req.params.id;
+      const findData = await pendingContactData.findOne({_id: new ObjectId(id)});
+      res.send(findData);
+    })
+    app.patch('/pendingContact/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: "resolve",
+        },
+      };
+      const result = await pendingContactData.updateOne(filter, updateDoc, options);
+      res.send(result)
     })
   } finally {
   }
