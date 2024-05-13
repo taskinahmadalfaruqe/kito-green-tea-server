@@ -29,9 +29,9 @@ const corsConfig = {
 app.use(cors())
 app.use(express.json());
 
-// const uri = "mongodb+srv://taskinahmadalfaruqe:SbqShhMkstQwducO@cluster0.5tob3mx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://taskinahmadalfaruqe:SbqShhMkstQwducO@cluster0.5tob3mx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-const uri = "mongodb+srv://e-shop-bd:UBShkNROi2oq4o2p@cluster0.1gxcng8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+// const uri = "mongodb+srv://e-shop-bd:UBShkNROi2oq4o2p@cluster0.1gxcng8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -41,16 +41,20 @@ const client = new MongoClient(uri, {
   }
 });
 
-let trackOrder = 1000;
+let CustomOrder = 100;
+const GetTime = new Date().getSeconds();
+const GetMonth = new Date().getMonth();
+const GetDate = new Date().getDate();
+const GetYear = new Date().getFullYear();
+
 
 async function run() {
   try {
     // await client.connect();
     const productsCollection = client.db("eShopBD").collection("products");
     const pendingOrderCollection = client.db("eShopBD").collection("pendingOrder");
-    const deliverOrder = client.db("eShopBD").collection('deliver');
+    const adminCollection = client.db("eShopBD").collection('adminCollection');
     const pendingContactData = client.db("eShopBD").collection('pendingContact');
-    const solveContactUS = client.db("eShopBD").collection('solveContact');
 
     //GET PRODUCTS
     app.post('/products', async (req, res) => {
@@ -91,7 +95,8 @@ async function run() {
     //PLACE ORDER
     app.post('/pendingOrderData', async (req, res) => {
       const pendingOrderDataPost = req.body;
-      trackOrder = trackOrder + 1;
+      CustomOrder = CustomOrder + 1;
+      const trackOrder = `${GetYear}${GetMonth + 1}${GetDate}${GetTime}${CustomOrder}`
       const orderData = await pendingOrderCollection.insertOne({ ...pendingOrderDataPost, trackOrder });
       res.send({ orderData, orderID: `${trackOrder}` });
     });
@@ -128,7 +133,7 @@ async function run() {
     })
     app.get('/pendingContact/:id', async (req, res) => {
       const id = req.params.id;
-      const findData = await pendingContactData.findOne({_id: new ObjectId(id)});
+      const findData = await pendingContactData.findOne({ _id: new ObjectId(id) });
       res.send(findData);
     })
     app.patch('/pendingContact/:id', async (req, res) => {
@@ -142,6 +147,30 @@ async function run() {
       };
       const result = await pendingContactData.updateOne(filter, updateDoc, options);
       res.send(result)
+    })
+
+    //ADMIN COLLECTION
+    app.post('/adminCollection', async (req, res) => {
+      const adminEmail = req.body;
+      console.log(adminEmail);
+      const result = await adminCollection.insertOne(adminEmail);
+      res.send(result)
+    })
+    //
+    app.get('/adminCollection/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      const find = await adminCollection.findOne(query)
+      let admin = false;
+      if (find) {
+        admin = find?.adminStatus === 'admin';
+      }
+      res.send(admin)
+    })
+
+    app.get('/adminCollection', async (req, res) => {
+      const findAdmin = await adminCollection.find().toArray();
+      res.send(findAdmin)
     })
   } finally {
   }
