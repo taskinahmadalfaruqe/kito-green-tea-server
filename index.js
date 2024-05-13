@@ -29,9 +29,9 @@ const corsConfig = {
 app.use(cors())
 app.use(express.json());
 
-const uri = "mongodb+srv://taskinahmadalfaruqe:SbqShhMkstQwducO@cluster0.5tob3mx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+// const uri = "mongodb+srv://taskinahmadalfaruqe:SbqShhMkstQwducO@cluster0.5tob3mx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-// const uri = "mongodb+srv://e-shop-bd:UBShkNROi2oq4o2p@cluster0.1gxcng8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://e-shop-bd:UBShkNROi2oq4o2p@cluster0.1gxcng8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const client = new MongoClient(uri, {
   serverApi: {
